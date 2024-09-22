@@ -32,8 +32,7 @@ app.use(
 
 app.use(express.json());
 // MongoDB connection string
-const connectionString =
-  "mongodb+srv://keandk:keandk12@cluster0.y4i0459.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const connectionString = process.env.MONGODB_CONNECTION_STRING;
 
 // Connect to MongoDB
 const client = new MongoClient(connectionString, {
@@ -108,7 +107,7 @@ client.connect()
           return res.status(401).json({ error: "Invalid password" });
         }
 
-        const genneralAccessToken = (payload, secret) => {
+        const generalAccessToken = (payload, secret) => {
           // console.log(`${payload}`);
           const access_token = jwt.sign(payload, secret, {
             expiresIn: "7d",
@@ -117,7 +116,7 @@ client.connect()
           return access_token;
         };
 
-        const genneralRefreshToken = (payload, secret) => {
+        const generalRefreshToken = (payload, secret) => {
           const refresh_token = jwt.sign(payload, secret, {
             expiresIn: "30d",
           });
@@ -126,7 +125,7 @@ client.connect()
         };
 
         const userSecret = `${process.env.ACCESS_TOKEN}_${username}`;
-        const access_token = genneralAccessToken(
+        const access_token = generalAccessToken(
           {
             // id: req.body._id,
             username: username,
@@ -136,7 +135,7 @@ client.connect()
         );
 
         const refreshUserSecret = `${process.env.REFRESH_TOKEN}_${username}`;
-        const refresh_token = genneralRefreshToken(
+        const refresh_token = generalRefreshToken(
           {
             // id: req.body._id,
             username: username,
@@ -611,7 +610,7 @@ client.connect()
       const { _id, values } = req.body;
       try {
         // Chuyển đổi chuỗi _id thành ObjectId
-        const objectId = new ObjectId(_id);
+        const objectId = new ObjectId(_id.toString());
 
         // Tạo một object chứa các trường dữ liệu cần cập nhật
         const updateValues = { $set: values };
@@ -680,7 +679,7 @@ client.connect()
   });
 
 const groq = new Groq({
-  apiKey: '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'
+  apiKey: process.env.GROQ_API_KEY
 });
 
 const summarizeCardMeaningsWithGroq = async (cards) => {
@@ -715,7 +714,7 @@ async function getGroqChatCompletion(prompt) {
         content: prompt,
       },
     ],
-    model: 'gemma-7b-it',
+    model: 'llama-3.1-8b-instant',
   });
 }
 
